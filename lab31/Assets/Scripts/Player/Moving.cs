@@ -10,8 +10,10 @@ public class Moving : MonoBehaviour
     [SerializeField] private GameObject _mesh;
     public CinemachineVirtualCamera _camera;
     [SerializeField] private Animator _animator;
+    [SerializeField] private Transform _meshTransform;
     [Space(10)]
     public float jumpTime = 0.2f;
+    public float jumpHeight = 2f;
     public float maxspeed = 0;
     public bool hasControl = false;
     private bool isCanChange = true;
@@ -19,12 +21,13 @@ public class Moving : MonoBehaviour
     private float jumpStart = 0f;
     private float jumpFinish = 0f;
     private bool isReadyToJump = false;
-
+    private float currentHeight; 
 
     private float distanceTravelled = 0f;
     // Start is called before the first frame update
     void Start()
     {
+        currentHeight = transform.position.y;
         distanceTravelled = 0f;
         transform.position = _pathCreator.path.GetPointAtDistance(distanceTravelled);
         transform.rotation = _pathCreator.path.GetRotationAtDistance(distanceTravelled);
@@ -112,16 +115,47 @@ public class Moving : MonoBehaviour
 
     private void StartJump()
     {
+        if (_animator != null)
+            _animator.SetBool("isJumping", true);
         hasControl = false;
         // Используем DOTween для анимации изменения значения dist
         DOTween.To(() => distanceTravelled, x => distanceTravelled = x, jumpFinish, jumpTime)
-            .SetEase(Ease.Linear)
+            .SetEase(Ease.InOutQuad)
             .OnComplete(OnJumpComplete);
+
+        // Анимация от 0 до heightMax
+        Tween upTween = DOTween.To(() => currentHeight, x => currentHeight = x, jumpHeight, jumpTime/2);
+        upTween.OnUpdate(() => {
+            // Применить текущую высоту к объекту
+            Vector3 newPosition = _meshTransform.position;
+            newPosition.y = currentHeight;
+            _meshTransform.position = newPosition;
+        });
+
+        // Анимация от heightMax до 0
+        Tween downTween = DOTween.To(() => currentHeight, x => currentHeight = x, 0f, jumpTime/2);
+        downTween.OnUpdate(() => {
+            // Применить текущую высоту к объекту
+            Vector3 newPosition = _meshTransform.position;
+            newPosition.y = currentHeight;
+            _meshTransform.position = newPosition;
+        });
+
+        // Создание последовательности анимации
+        Sequence sequence = DOTween.Sequence();
+        sequence.Append(upTween);
+        sequence.Append(downTween);
+        //sequence.SetLoops(-1, LoopType.Yoyo);
+
+        // Настройка ease
+        sequence.SetEase(Ease.Linear);
     }
 
     private void OnJumpComplete()
     {
         hasControl = true;
+        if (_animator != null)
+            _animator.SetBool("isJumping", false);
     }
 
 }
