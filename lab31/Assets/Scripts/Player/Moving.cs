@@ -6,10 +6,12 @@ using Cinemachine;
 public class Moving : MonoBehaviour
 {
     [SerializeField] private PathCreator _pathCreator;
+    [SerializeField] private GameObject _mesh;
+    public CinemachineVirtualCamera _camera;
+    [SerializeField] private Animator _animator;
+    [Space (10)]
     public float maxspeed = 0;
     public bool hasControl = false;
-    public CinemachineVirtualCamera _camera;
-    [SerializeField] private GameObject _mesh;
     private bool isCanChange = true;
 
     private float distanceTravelled = 0f;
@@ -30,10 +32,19 @@ public class Moving : MonoBehaviour
         if (Input.GetKey(KeyCode.Space))
         {
             speed = maxspeed;
+            if(_animator != null)
+                _animator.SetBool("isRunning", true);
+           // Debug.Log(_animator.GetBool("isRunning"));
+        }
+        else
+        {
+            if (_animator != null)
+                _animator.SetBool("isRunning", false);
         }
         distanceTravelled += speed * Time.deltaTime;
         transform.position = _pathCreator.path.GetPointAtDistance(distanceTravelled);
         transform.rotation = _pathCreator.path.GetRotationAtDistance(distanceTravelled);
+        
     }
 
     public void ChangePlayer()
