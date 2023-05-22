@@ -2,6 +2,7 @@ using System.Collections;
 using PathCreation;
 using UnityEngine;
 using Cinemachine;
+using DG.Tweening;
 
 public class Moving : MonoBehaviour
 {
@@ -9,16 +10,22 @@ public class Moving : MonoBehaviour
     [SerializeField] private GameObject _mesh;
     public CinemachineVirtualCamera _camera;
     [SerializeField] private Animator _animator;
-    [Space (10)]
+    [Space(10)]
+    public float jumpTime = 0.2f;
     public float maxspeed = 0;
     public bool hasControl = false;
     private bool isCanChange = true;
+
+    private float jumpStart = 0f;
+    private float jumpFinish = 0f;
+    private bool isReadyToJump = false;
+
 
     private float distanceTravelled = 0f;
     // Start is called before the first frame update
     void Start()
     {
-        distanceTravelled = 0.1f;
+        distanceTravelled = 0f;
         transform.position = _pathCreator.path.GetPointAtDistance(distanceTravelled);
         transform.rotation = _pathCreator.path.GetRotationAtDistance(distanceTravelled);
     }
@@ -26,25 +33,35 @@ public class Moving : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!hasControl)
-            return;
         var speed = 0f;
-        if (Input.GetKey(KeyCode.Space))
+        if (hasControl)
         {
-            speed = maxspeed;
-            if(_animator != null)
-                _animator.SetBool("isRunning", true);
-           // Debug.Log(_animator.GetBool("isRunning"));
+            if (Input.GetKey(KeyCode.Space))
+            {
+                speed = maxspeed;
+                if (_animator != null)
+                    _animator.SetBool("isRunning", true);
+            }
+            else
+            {
+                if (_animator != null)
+                    _animator.SetBool("isRunning", false);
+            }
         }
-        else
+
+        if(isReadyToJump)
         {
-            if (_animator != null)
-                _animator.SetBool("isRunning", false);
+            if(distanceTravelled >= jumpStart)
+            {
+                isReadyToJump = false;
+                StartJump();
+            }
         }
+
         distanceTravelled += speed * Time.deltaTime;
         transform.position = _pathCreator.path.GetPointAtDistance(distanceTravelled);
         transform.rotation = _pathCreator.path.GetRotationAtDistance(distanceTravelled);
-        
+
     }
 
     public void ChangePlayer()
@@ -85,16 +102,26 @@ public class Moving : MonoBehaviour
         isCanChange = true;
 
     }
-    // private void OnCollisionEnter(Collision collision)
-    // {
-    //     if (!hasControl)
-    //         return;
-    //     if (collision.transform.gameObject.CompareTag("Player"))
-    //     {
-    //         Debug.Log("collision");
-    //         var anotherPlayer = collision.transform.gameObject.GetComponent<Moving>();
-    //         anotherPlayer.ChangePlayer();
-    //         DeactivatePlayer();
-    //     }
-    // }
+    
+    public void PrepeareToJump(float start, float finish)
+    {
+        jumpStart = start;
+        jumpFinish = finish;
+        isReadyToJump = true;
+    }
+
+    private void StartJump()
+    {
+        hasControl = false;
+        // »спользуем DOTween дл€ анимации изменени€ значени€ dist
+        DOTween.To(() => distanceTravelled, x => distanceTravelled = x, jumpFinish, jumpTime)
+            .SetEase(Ease.Linear)
+            .OnComplete(OnJumpComplete);
+    }
+
+    private void OnJumpComplete()
+    {
+        hasControl = true;
+    }
+
 }
