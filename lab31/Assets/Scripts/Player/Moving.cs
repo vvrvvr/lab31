@@ -24,6 +24,7 @@ public class Moving : MonoBehaviour
     private float currentHeight; 
 
     private float distanceTravelled = 0f;
+    private float nearestRespawnPoint = 0f;
     // Start is called before the first frame update
     void Start()
     {
@@ -158,4 +159,18 @@ public class Moving : MonoBehaviour
             _animator.SetBool("isJumping", false);
     }
 
+    public void SetNearestRespawnPoint(float dist)
+    {
+        nearestRespawnPoint = dist;
+    }
+
+    public void Dead()
+    {
+
+    }
+
+    public void Restart()
+    {
+
+    }
 }
