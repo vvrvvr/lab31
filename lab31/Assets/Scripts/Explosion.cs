@@ -10,7 +10,7 @@ public class Explosion : MonoBehaviour
     [SerializeField] Rigidbody[] blocks = new Rigidbody[0];
     [SerializeField] MeshRenderer[] blocksMesh = new MeshRenderer[0];
     [SerializeField] private float power = 0f;
-    public float time = 1f;
+    public float returnTime = 1f;
     private Sequence sequence;
 
     //private Vector3[] originalPositions;  // Исходные позиции блоков
@@ -35,7 +35,7 @@ public class Explosion : MonoBehaviour
 
         for (int i = 0; i < blocks.Length; i++)
         {
-            sequence.Join(blocks[i].transform.DOMove(position, time));
+            sequence.Join(blocks[i].transform.DOMove(position, returnTime));
         }
 
         sequence.OnComplete(CompleteTween);

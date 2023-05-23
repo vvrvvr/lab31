@@ -13,6 +13,7 @@ public class Moving : MonoBehaviour
     [SerializeField] private Transform _meshTransform;
     [SerializeField] GameObject explosionPrefab;
     [SerializeField] Transform _anchor;
+    [SerializeField] private float distanceOffset = 5f;
     [Space(10)]
     public float jumpTime = 0.2f;
     public float jumpHeight = 2f;
@@ -69,12 +70,15 @@ public class Moving : MonoBehaviour
                 StartJump();
             }
         }
-
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            Restart();
+        }
         distanceTravelled += speed * Time.deltaTime;
         transform.position = _pathCreator.path.GetPointAtDistance(distanceTravelled);
         transform.rotation = _pathCreator.path.GetRotationAtDistance(distanceTravelled);
 
-        
+
     }
 
     public void ChangePlayer()
@@ -191,9 +195,24 @@ public class Moving : MonoBehaviour
 
     public void Restart()
     {
-        if (explosionObject != null)
-        {
-            explosionObject.GetComponent<Explosion>().ReturnBlocks(transform.position);
-        }
+        var expolsion = explosionObject.GetComponent<Explosion>();
+        distanceTravelled -= distanceOffset;
+        transform.position = _pathCreator.path.GetPointAtDistance(distanceTravelled);
+        transform.rotation = _pathCreator.path.GetRotationAtDistance(distanceTravelled);
+
+        expolsion.ReturnBlocks(_anchor.position);
+
+        StartCoroutine(WaitToBlocksReturn(expolsion.returnTime));
+        Debug.Log("Restart");
+    }
+    private IEnumerator WaitToBlocksReturn(float waitTime)
+    {
+        yield return new WaitForSeconds(waitTime);
+        Debug.Log("WaitToBlocksReturn");
+        isDead = false;
+        hasControl = true;
+        _mesh.SetActive(true);
+        currentEnemy.SetActive(false);
+        currentEnemy = null;
     }
 }
