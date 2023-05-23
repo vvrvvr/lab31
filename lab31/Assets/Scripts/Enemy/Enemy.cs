@@ -6,7 +6,20 @@ public class Enemy : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Player"))
         {
-            other.gameObject.GetComponent<Moving>().Dead(gameObject);
+            Moving movingScript = other.gameObject.GetComponent<Moving>();
+            if (movingScript != null)
+            {
+                movingScript.Dead(gameObject);
+            }
         }
+        else if (other.gameObject.CompareTag("PlayerAdditional"))
+        {
+            Moving movingScriptInParent = other.GetComponentInParent<Moving>();
+            if (movingScriptInParent != null)
+            {
+                movingScriptInParent.Dead(gameObject);
+            }
+        }
+        
     }
 }

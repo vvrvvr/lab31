@@ -27,6 +27,7 @@ public class Moving : MonoBehaviour
     private float currentHeight;
 
     private float distanceTravelled = 0f;
+    private BoxCollider _boxCollider;
 
     //respawn and dead
     private float nearestRespawnPoint = 0f;
@@ -37,6 +38,7 @@ public class Moving : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        _boxCollider = GetComponent<BoxCollider>();
         currentHeight = transform.position.y;
         distanceTravelled = 0f;
         transform.position = _pathCreator.path.GetPointAtDistance(distanceTravelled);
@@ -129,6 +131,7 @@ public class Moving : MonoBehaviour
 
     private void StartJump()
     {
+        _boxCollider.enabled = false;
         if (_animator != null)
             _animator.SetBool("isJumping", true);
         hasControl = false;
@@ -169,6 +172,7 @@ public class Moving : MonoBehaviour
 
     private void OnJumpComplete()
     {
+        _boxCollider.enabled = true;
         hasControl = true;
         if (_animator != null)
             _animator.SetBool("isJumping", false);
