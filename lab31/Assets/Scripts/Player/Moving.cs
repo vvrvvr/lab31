@@ -11,6 +11,8 @@ public class Moving : MonoBehaviour
     public CinemachineVirtualCamera _camera;
     [SerializeField] private Animator _animator;
     [SerializeField] private Transform _meshTransform;
+    [SerializeField] GameObject explosionPrefab;
+    [SerializeField] Transform _anchor;
     [Space(10)]
     public float jumpTime = 0.2f;
     public float jumpHeight = 2f;
@@ -21,10 +23,16 @@ public class Moving : MonoBehaviour
     private float jumpStart = 0f;
     private float jumpFinish = 0f;
     private bool isReadyToJump = false;
-    private float currentHeight; 
+    private float currentHeight;
 
     private float distanceTravelled = 0f;
+
+    //respawn and dead
     private float nearestRespawnPoint = 0f;
+    private GameObject explosionObject;
+    private GameObject currentEnemy = null;
+    private bool isDead = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -53,9 +61,9 @@ public class Moving : MonoBehaviour
             }
         }
 
-        if(isReadyToJump)
+        if (isReadyToJump)
         {
-            if(distanceTravelled >= jumpStart)
+            if (distanceTravelled >= jumpStart)
             {
                 isReadyToJump = false;
                 StartJump();
@@ -66,6 +74,7 @@ public class Moving : MonoBehaviour
         transform.position = _pathCreator.path.GetPointAtDistance(distanceTravelled);
         transform.rotation = _pathCreator.path.GetRotationAtDistance(distanceTravelled);
 
+        
     }
 
     public void ChangePlayer()
@@ -106,7 +115,7 @@ public class Moving : MonoBehaviour
         isCanChange = true;
 
     }
-    
+
     public void PrepeareToJump(float start, float finish)
     {
         jumpStart = start;
@@ -125,8 +134,9 @@ public class Moving : MonoBehaviour
             .OnComplete(OnJumpComplete);
 
         // Анимация от 0 до heightMax
-        Tween upTween = DOTween.To(() => currentHeight, x => currentHeight = x, jumpHeight, jumpTime/2);
-        upTween.OnUpdate(() => {
+        Tween upTween = DOTween.To(() => currentHeight, x => currentHeight = x, jumpHeight, jumpTime / 2);
+        upTween.OnUpdate(() =>
+        {
             // Применить текущую высоту к объекту
             Vector3 newPosition = _meshTransform.position;
             newPosition.y = currentHeight;
@@ -134,8 +144,9 @@ public class Moving : MonoBehaviour
         });
 
         // Анимация от heightMax до 0
-        Tween downTween = DOTween.To(() => currentHeight, x => currentHeight = x, 0f, jumpTime/2);
-        downTween.OnUpdate(() => {
+        Tween downTween = DOTween.To(() => currentHeight, x => currentHeight = x, 0f, jumpTime / 2);
+        downTween.OnUpdate(() =>
+        {
             // Применить текущую высоту к объекту
             Vector3 newPosition = _meshTransform.position;
             newPosition.y = currentHeight;
@@ -164,13 +175,25 @@ public class Moving : MonoBehaviour
         nearestRespawnPoint = dist;
     }
 
-    public void Dead()
+    public void Dead(GameObject killer)
     {
+        if (isDead)
+            return;
+        isDead = true;
+        hasControl = false;
+        _mesh.SetActive(false);
 
+        currentEnemy = killer;
+        explosionObject = Instantiate(explosionPrefab);
+        explosionObject.transform.position = _anchor.position;
+        explosionObject.transform.rotation = transform.rotation;
     }
 
     public void Restart()
     {
-
+        if (explosionObject != null)
+        {
+            explosionObject.GetComponent<Explosion>().ReturnBlocks(transform.position);
+        }
     }
 }
