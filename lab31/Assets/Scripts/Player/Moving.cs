@@ -9,6 +9,7 @@ public class Moving : MonoBehaviour
     [SerializeField] private PathCreator _pathCreator;
     [SerializeField] private GameObject _mesh;
     public CinemachineVirtualCamera _camera;
+    public CinemachineVirtualCamera _startCamera;
     [SerializeField] private Animator _animator;
     [SerializeField] private Transform _meshTransform;
     [SerializeField] GameObject explosionPrefab;
@@ -48,7 +49,24 @@ public class Moving : MonoBehaviour
         if(isStartgame)
         {
             hasControl = false;
+            _animator.SetBool("isBegining", true);
+            _startCamera.Priority = 10;
         }
+    }
+    public void StartGame()
+    {
+        _animator.SetBool("isBegining", false);
+        _animator.SetBool("isStartGame", true);
+        _startCamera.Priority = 0;
+        _camera.Priority = 1;
+        Sequence sequence = DOTween.Sequence();
+        sequence.AppendInterval(1f);
+        sequence.AppendCallback(() =>
+        {
+            hasControl = true;
+            isStartgame = false;
+        });
+        sequence.Play();
     }
 
     // Update is called once per frame
@@ -61,7 +79,10 @@ public class Moving : MonoBehaviour
             {
                 speed = maxspeed;
                 if (_animator != null)
+                {
                     _animator.SetBool("isRunning", true);
+                    _meshTransform.localPosition = Vector3.zero;
+                }
             }
             else
             {
@@ -83,6 +104,10 @@ public class Moving : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.A))
         {
             Restart();
+        }
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            StartGame();
         }
         distanceTravelled += speed * Time.deltaTime;
         transform.position = _pathCreator.path.GetPointAtDistance(distanceTravelled);
@@ -180,6 +205,7 @@ public class Moving : MonoBehaviour
 
     private void OnJumpComplete()
     {
+        _meshTransform.localPosition = Vector3.zero;
         _boxCollider.enabled = true;
         if (_animator != null)
             _animator.SetBool("isJumping", false);
