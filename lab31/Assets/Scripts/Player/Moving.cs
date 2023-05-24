@@ -15,6 +15,8 @@ public class Moving : MonoBehaviour
     [SerializeField] Transform _anchor;
     [SerializeField] private float distanceOffset = 5f;
     [Space(10)]
+    public bool isStartgame = false;
+    [Space(10)]
     public float jumpTime = 0.2f;
     public float jumpHeight = 2f;
     public float maxspeed = 0;
@@ -43,6 +45,10 @@ public class Moving : MonoBehaviour
         distanceTravelled = 0f;
         transform.position = _pathCreator.path.GetPointAtDistance(distanceTravelled);
         transform.rotation = _pathCreator.path.GetRotationAtDistance(distanceTravelled);
+        if(isStartgame)
+        {
+            hasControl = false;
+        }
     }
 
     // Update is called once per frame
@@ -72,6 +78,8 @@ public class Moving : MonoBehaviour
                 StartJump();
             }
         }
+
+        //temp
         if (Input.GetKeyDown(KeyCode.A))
         {
             Restart();
@@ -173,9 +181,11 @@ public class Moving : MonoBehaviour
     private void OnJumpComplete()
     {
         _boxCollider.enabled = true;
-        hasControl = true;
         if (_animator != null)
             _animator.SetBool("isJumping", false);
+        if (isDead)
+            return;
+        hasControl = true;
     }
 
     public void SetNearestRespawnPoint(float dist)
