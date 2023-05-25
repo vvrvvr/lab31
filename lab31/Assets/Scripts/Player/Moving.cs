@@ -229,8 +229,10 @@ public class Moving : MonoBehaviour
 
         currentEnemy = killer;
         explosionObject = Instantiate(explosionPrefab);
-        explosionObject.transform.position = _anchor.position;
-        explosionObject.transform.rotation = transform.rotation;
+        explosionObject.transform.parent = _anchor;
+        explosionObject.transform.localPosition = Vector3.zero;
+        explosionObject.transform.rotation = Quaternion.identity;
+       explosionObject.transform.SetParent(null);
     }
 
     public void Restart()
