@@ -12,7 +12,10 @@ public class Moving : MonoBehaviour
     public CinemachineVirtualCamera _startCamera;
     [SerializeField] private Animator _animator;
     [SerializeField] private Transform _meshTransform;
+
     [SerializeField] GameObject explosionPrefab;
+    [SerializeField] GameObject restartPrefab;
+
     [SerializeField] Transform _anchor;
     [SerializeField] private float distanceOffset = 5f;
     [Space(10)]
@@ -34,7 +37,7 @@ public class Moving : MonoBehaviour
 
     //respawn and dead
     private float nearestRespawnPoint = 0f;
-    private GameObject explosionObject;
+    //private GameObject explosionObject;
     private GameObject currentEnemy = null;
     private bool isDead = false;
 
@@ -228,23 +231,29 @@ public class Moving : MonoBehaviour
         _mesh.SetActive(false);
 
         currentEnemy = killer;
-        explosionObject = Instantiate(explosionPrefab);
+        var explosionObject = Instantiate(explosionPrefab);
         explosionObject.transform.parent = _anchor;
+        explosionObject.transform.localScale = Vector3.one;
         explosionObject.transform.localPosition = Vector3.zero;
         explosionObject.transform.rotation = Quaternion.identity;
-       explosionObject.transform.SetParent(null);
+       //explosionObject.transform.SetParent(null);
     }
 
     public void Restart()
     {
-        var expolsion = explosionObject.GetComponent<Explosion>();
+        //var expolsion = explosionObject.GetComponent<Explosion>();
         distanceTravelled -= distanceOffset;
         transform.position = _pathCreator.path.GetPointAtDistance(distanceTravelled);
         transform.rotation = _pathCreator.path.GetRotationAtDistance(distanceTravelled);
 
-        expolsion.ReturnBlocks(_anchor.position);
+        var restartObject = Instantiate(restartPrefab);
+        restartObject.transform.parent = _anchor;
+        restartObject.transform.localScale = Vector3.one;
+        restartObject.transform.localPosition = Vector3.zero;
+        restartObject.transform.rotation = Quaternion.identity;
+        //expolsion.ReturnBlocks(_anchor.position);
 
-        StartCoroutine(WaitToBlocksReturn(expolsion.returnTime));
+        StartCoroutine(WaitToBlocksReturn(1f));
         Debug.Log("Restart");
     }
     private IEnumerator WaitToBlocksReturn(float waitTime)
