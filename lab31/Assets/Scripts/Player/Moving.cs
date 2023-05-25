@@ -235,7 +235,7 @@ public class Moving : MonoBehaviour
         explosionObject.transform.parent = _anchor;
         explosionObject.transform.localScale = Vector3.one;
         explosionObject.transform.localPosition = Vector3.zero;
-        explosionObject.transform.rotation = Quaternion.identity;
+        //explosionObject.transform.rotation = Quaternion.identity;
        //explosionObject.transform.SetParent(null);
     }
 
@@ -250,7 +250,7 @@ public class Moving : MonoBehaviour
         restartObject.transform.parent = _anchor;
         restartObject.transform.localScale = Vector3.one;
         restartObject.transform.localPosition = Vector3.zero;
-        restartObject.transform.rotation = Quaternion.identity;
+        //restartObject.transform.rotation = Quaternion.identity;
         //expolsion.ReturnBlocks(_anchor.position);
 
         StartCoroutine(WaitToBlocksReturn(1f));
@@ -265,5 +265,12 @@ public class Moving : MonoBehaviour
         _mesh.SetActive(true);
         currentEnemy.SetActive(false);
         currentEnemy = null;
+    }
+
+    public void Finish()
+    {
+        hasControl = false;
+        _animator.SetBool("isFinish", true);
+        _camera.Priority = 0;
     }
 }
