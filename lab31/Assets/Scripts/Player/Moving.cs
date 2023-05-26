@@ -171,38 +171,38 @@ public class Moving : MonoBehaviour
         if (_animator != null)
             _animator.SetBool("isJumping", true);
         hasControl = false;
-        // Используем DOTween для анимации изменения значения dist
+        // РСЃРїРѕР»СЊР·СѓРµРј DOTween РґР»СЏ Р°РЅРёРјР°С†РёРё РёР·РјРµРЅРµРЅРёСЏ Р·РЅР°С‡РµРЅРёСЏ dist
         DOTween.To(() => distanceTravelled, x => distanceTravelled = x, jumpFinish, jumpTime)
             .SetEase(Ease.InOutQuad)
             .OnComplete(OnJumpComplete);
 
-        // Анимация от 0 до heightMax
+        // РђРЅРёРјР°С†РёСЏ РѕС‚ 0 РґРѕ heightMax
         Tween upTween = DOTween.To(() => currentHeight, x => currentHeight = x, jumpHeight, jumpTime / 2);
         upTween.OnUpdate(() =>
         {
-            // Применить текущую высоту к объекту
+            // РџСЂРёРјРµРЅРёС‚СЊ С‚РµРєСѓС‰СѓСЋ РІС‹СЃРѕС‚Сѓ Рє РѕР±СЉРµРєС‚Сѓ
             Vector3 newPosition = _meshTransform.position;
             newPosition.y = currentHeight;
             _meshTransform.position = newPosition;
         });
 
-        // Анимация от heightMax до 0
+        // РђРЅРёРјР°С†РёСЏ РѕС‚ heightMax РґРѕ 0
         Tween downTween = DOTween.To(() => currentHeight, x => currentHeight = x, 0f, jumpTime / 2);
         downTween.OnUpdate(() =>
         {
-            // Применить текущую высоту к объекту
+            // РџСЂРёРјРµРЅРёС‚СЊ С‚РµРєСѓС‰СѓСЋ РІС‹СЃРѕС‚Сѓ Рє РѕР±СЉРµРєС‚Сѓ
             Vector3 newPosition = _meshTransform.position;
             newPosition.y = currentHeight;
             _meshTransform.position = newPosition;
         });
 
-        // Создание последовательности анимации
+        // РЎРѕР·РґР°РЅРёРµ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚Рё Р°РЅРёРјР°С†РёРё
         Sequence sequence = DOTween.Sequence();
         sequence.Append(upTween);
         sequence.Append(downTween);
         //sequence.SetLoops(-1, LoopType.Yoyo);
 
-        // Настройка ease
+        // РќР°СЃС‚СЂРѕР№РєР° ease
         sequence.SetEase(Ease.Linear);
     }
 
@@ -263,7 +263,7 @@ public class Moving : MonoBehaviour
         isDead = false;
         hasControl = true;
         _mesh.SetActive(true);
-        currentEnemy.SetActive(false);
+        currentEnemy.GetComponent<Enemy>().DestroyMe();
         currentEnemy = null;
     }
 

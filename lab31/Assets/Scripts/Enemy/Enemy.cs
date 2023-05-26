@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
+    private GameObject parentObj;
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Player"))
@@ -12,6 +13,7 @@ public class Enemy : MonoBehaviour
                 movingScript.Dead(gameObject);
             }
         }
+
         if (other.gameObject.CompareTag("PlayerAdditional"))
         {
             Moving movingScriptInParent = other.GetComponentInParent<Moving>();
@@ -20,6 +22,15 @@ public class Enemy : MonoBehaviour
                 movingScriptInParent.Dead(gameObject);
             }
         }
-        
+    }
+
+    public void DestroyMe()
+    {
+        parentObj = transform.parent.gameObject;
+        while (parentObj.transform.parent != null)
+        {
+            parentObj = parentObj.transform.parent.gameObject;
+        }
+        parentObj.SetActive(false);
     }
 }
